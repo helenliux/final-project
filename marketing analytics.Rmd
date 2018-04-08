@@ -490,8 +490,8 @@ mselist<-list()
 
 for (i in 1:64) {
 modellist2[[i]]<-(lm(as.formula(formulaSet[i]),data=train_data))
-mselist[[i]]<-mean((test_data$Loan_Approval- predict(modellist2[[i]],newdata = test_data))^2,digit=3)
-}
+mselist[[i]]<-mean((test_data$Loan_Approval- predict(modellist2[[i]],newdata = test_data))^2)
+formatC(mselist[[i]], digits = 3)}
 
 mselist
 
