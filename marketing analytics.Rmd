@@ -468,7 +468,7 @@ RegressionVec6 = c('','+applicant_income_000s')
 RegressionVec7 = c('','+factor(applicant_sex)')
 RegressionVec8 = c('','+factor(applicant_ethnicity)')
                    
-
+11
 
 formulaSet = paste('Loan_Approval~1',
 apply(expand.grid(RegressionVec1,RegressionVec2,RegressionVec3,RegressionVec4,RegressionVec5,RegressionVec6,RegressionVec7,RegressionVec8),1,paste,collapse=''))
