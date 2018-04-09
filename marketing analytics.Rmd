@@ -491,10 +491,10 @@ for (i in 1:64) {
   modellist2[[i]] <- (lm(as.formula(formulaSet[i]), data = train_data))
   mselist[[i]] <- mean((test_data$Loan_Approval - predict(modellist2[[i]], newdata = test_data))^2) %>%
   format(digits = 3)
-  11
+  
 }
 
-
+1
 
 
 
