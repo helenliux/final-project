@@ -457,7 +457,6 @@ Noticeably, the R-squared is only 0.0198, showing that our model can not explain
 ##9. Best Model
 ```{r}
 #Setting training set and testing set
-
 RegressionVec1 = c('+loan_amount_000s')
 RegressionVec2 = c('','+factor(preapproval)')
 RegressionVec3 = c('+factor(lien_status)')
@@ -467,7 +466,6 @@ RegressionVec6 = c('','+applicant_income_000s')
 RegressionVec7 = c('','+factor(applicant_sex)')
 RegressionVec8 = c('','+factor(applicant_ethnicity)')
                    
-
 
 formulaSet = paste('Loan_Approval~1',
 apply(expand.grid(RegressionVec1,RegressionVec2,RegressionVec3,RegressionVec4,RegressionVec5,RegressionVec6,RegressionVec7,RegressionVec8),1,paste,collapse=''))
@@ -484,20 +482,12 @@ train.index <- sample(c(1:dim(ny_hmApproval)[1]), dim(ny_hmApproval)[1]*0.7)
 train_data <- ny_hmApproval[train.index, ]
 test_data <- ny_hmApproval[-train.index, ]
 
-
 modellist2<-list()
-predlist<-list()
-reslist<-list()
-likelihood<-list()
-loglikelihood<-list()
+mselist<-list()
 for (i in 1:64) {
-modellist2[[i]]<-(lm(as.formula(formulaSet[i]),data=train_data))
-predlist[[i]] <- predict(modellist2[[i]], newdata = test_data)
-reslist[[i]] <- data.frame(actual = test_data$Loan_Approval, predlist[[i]])
-likelihood[[i]]<- with(reslist[[i]], ifelse(test_data$Loan_Approval == 1, predlist[[i]], 1-predlist[[i]]))
-}
-
-
+  modellist2[[i]] <- (lm(as.formula(formulaSet[i]), data = train_data))
+  mselist[[i]] <- mean((test_data$Loan_Approval - predict(modellist2[[i]], newdata = test_data))^2) %>%
+  format(digits = 3)}
 
 ```
 Compared to previous model, the R-square of this model is higher. 0.31 R-square means that 31% data variation can be represented by the model. All variables are statistically significant under this model except for factor(applicant_sex)4,factor(applicant_race_1)3,factor(applicant_race_1)4  and factor(lien_status)3. 
