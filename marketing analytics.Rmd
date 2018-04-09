@@ -504,4 +504,10 @@ The intercept is the probability of loan approval under following conditions: th
 
 We could use this regression result to predict the probability of a loan getting approved given all the information of above variables. 
 
+```{r}
+customerSegments<-ny_hmda %>%
+group_by(applicant_sex_name,applicant_ethnicity_name)%>%
+summarize(income=mean(applicant_income_000s),lien_status=Mode(lien_status))
+customerSegments
+```
 
