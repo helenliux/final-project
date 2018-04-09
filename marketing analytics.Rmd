@@ -486,18 +486,17 @@ test_data <- ny_hmApproval[-train.index, ]
 
 
 modellist2<-list()
-mselist<-list()
-
+predlist<-list()
+reslist<-list()
+likelihood<-list()
+loglikelihood<-list()
 for (i in 1:64) {
 modellist2[[i]]<-(lm(as.formula(formulaSet[i]),data=train_data))
-mselist[[i]]<-mean((test_data$Loan_Approval- predict(modellist2[[i]],newdata = test_data))^2)
-formatC(mselist[[i]], digits = 3)}
+predlist[[i]] <- predict(modellist2[[i]], newdata = test_data)
+reslist[[i]] <- data.frame(actual = test_data$Loan_Approval, predlist[[i]])
+reslist[[i]]}
 
-mselist
-
-
-
-
+reslist[[1]]
 
 ```
 Compared to previous model, the R-square of this model is higher. 0.31 R-square means that 31% data variation can be represented by the model. All variables are statistically significant under this model except for factor(applicant_sex)4,factor(applicant_race_1)3,factor(applicant_race_1)4  and factor(lien_status)3. 
