@@ -485,30 +485,18 @@ train.index <- sample(c(1:dim(ny_hmApproval)[1]), dim(ny_hmApproval)[1]*0.7)
 train_data <- ny_hmApproval[train.index, ]
 test_data <- ny_hmApproval[-train.index, ]
 
-
 modellist2<-list()
-predlist<-list()
-reslist<-list()
-likelihood<-list()
-Loglikelihood<-list()
+mselist<-list()
 for (i in 1:64) {
-modellist2[[i]]<-(lm(as.formula(formulaSet[i]),data=train_data))
-predlist[[i]] <- predict(modellist2[[i]], newdata = test_data)
-reslist[[i]] <- data.frame(actual = test_data$Loan_Approval, predlist[[i]])
-likelihood[[i]]<- with(reslist[[i]], ifelse(test_data$Loan_Approval== 1, predlist[[i]], 1-predlist[[i]]))
-Loglikelihood[[i]]<--sum(log(likelihood[[i]]))
+  modellist2[[i]] <- (lm(as.formula(formulaSet[i]), data = train_data))
+  mselist[[i]] <- mean((test_data$Loan_Approval - predict(modellist2[[i]], newdata = test_data))^2) %>%
+  format(digits = 3)
 }
 
 
 
 
-reslist[[1]]
 
-likelihood[[1]]<- with(reslist[[1]], ifelse(test_data$Loan_Approval== 1, predlist[[1]], 1-predlist[[1]]))
-likelihood[[1]]
-
-b<-sum(log(likelihood[[1]]))
-b
 
 
 
