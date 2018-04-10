@@ -473,20 +473,20 @@ The Loan_Approval only has value 0 or 1, so the mean of Loan_Approval can repres
 loan_approval_model1<-lm(Loan_Approval~loan_amount_000s+hud_median_family_income+factor(applicant_sex)+factor(applicant_race_1), data=ny_hmApproval, x= TRUE)
 summary(loan_approval_model1)
 ```
-"Loan_Approval"" is a dependent variabl. It is a dummy variable and shows whether the application is approved or not. "loan_amount_000s", in our model, we used LPM model and treat "Loan_Approval" as the probability of a loan being approved. hud_median_family_income","applicant_sex", "applicant_race_1", "IsMissingSex","IsMissingRace" are included in the model as dependent variables. 
+"Loan_Approval"" is a dependent variabl. It is a dummy variable and shows whether the application is approved or not. In our model, we used LPM model and treat "Loan_Approval" as the probability of a loan being approved. "loan_amount_000s", "hud_median_family_income","applicant_sex", "applicant_race_1" are included in the model as independent variables. 
 
-According to the regression result, loan_amount, sex and race are statistically significant under 5% significant level. However, hud_median_family_income is not statisticallt significant. The coefficient of loan amount represents the incresing possibility of getting approved if loan amount increases one unit. The base of group in the model is white male, therefore all coefficients of dummy variables represent the difference of the possibility of approval from the base group.
-Noticeably, the R-squared is only 0.0198, showing that our model can not explain the data variation very well. Therefore, the next step is to control omitted variables to make a better model.  
+According to the regression result, loan_amount and race are statistically significant under 5% significant level. However, applicant sex is not statistically significant under 95% significance level. The coefficient of loan amount or hud_median_family_income represent the incresing possibility of getting approved if loan amount or hud_median_family_income increases one unit. The base of group in the model is white male, therefore all coefficients of dummy variables represent the difference of the possibility of approval from the base group.
+Noticeably, the R-squared is only 0.0109, showing that our model can not explain the data variation very well. Therefore, the next step is to control omitted variables to make a better model.  
 
 ##9. Best Model
 ```{r}
-#Setting training set and testing set
+#create 50 models
 library("dplyr")
 RegressionVec1 = c('+loan_amount_000s')
 RegressionVec2 = c('','+factor(preapproval)')
 RegressionVec3 = c('+factor(lien_status)')
 RegressionVec4 = c('','+factor(loan_purpose)')
-RegressionVec5 = c('+factor(loan_type)','+purchaser_type')
+RegressionVec5 = c('+factor(loan_type)','+factor(purchaser_type)')
 RegressionVec6 = c('','+applicant_income_000s')
 RegressionVec7 = c('','+factor(applicant_sex)')
 RegressionVec8 = c('','+factor(applicant_ethnicity)')
@@ -507,15 +507,16 @@ for (i in 1:64) {
   modellist2[[i]] <- (lm(as.formula(formulaSet[i]), data = train_data))
   mselist[i] <- mean((test_data$Loan_Approval - predict(modellist2[[i]], newdata = test_data))^2) %>%
 
-format(digits = 3)
+format(digits = 4)
   
 }
-
-mselist
 min(mselist) 
-
+mselist
+mselist[[64]]
+summary(modellist2[[64]])
+summary(modellist2[[48]])
 ```
-Compared to previous model, the R-square of this model is higher. 0.31 R-square means that 31% data variation can be represented by the model. All variables are statistically significant under this model except for factor(applicant_sex)4,factor(applicant_race_1)3,factor(applicant_race_1)4  and factor(lien_status)3. 
+Then we created 8 vectors to automatically generate 64 different models. These vectors contains following variables: loan_amount_000s, factor(preapproval), factor(lien_status), factor(loan_purpose), factor(purchaser_type), applicant_income_000s , factor(applicant_sex), factor(applicant_ethnicity). We created 64 models from these variables. The reason why we include these variables in our model is because we want to test whether there is no-linear correlation between rating of Rocky5 with ratings of other movies. Besides, we also include isMissing variables indicating the missing value. As we talked above, these missing value is not missing at random and is not independent from our dependent variable. Therefore, we included a series of isMissing variables. However, we did not include isMissing1 as we notice we cannot reject the independence between isMissing1 and Rocky5. Thus we created 54 models with rockyDB_impute and store the models as modellist1. Then we seperated our original dataset into training set and validation set, and used the same formularset to generate models within the training set. We utilized training data to generate models and made predictions for validation set. We firstly generated 54 models with training data and store it as modellist2. Then we made predictions based on models in modellist2 and calculated out of sample MSE of these models. We found the 30th model in the modellist2 has the least MSE, 1.051784. 
 
 
 
@@ -530,9 +531,10 @@ The intercept is the probability of loan approval under following conditions: th
 We could use this regression result to predict the probability of a loan getting approved given all the information of above variables. 
 
 ```{r}
-customerSegments<-ny_hmda %>%
-group_by(applicant_sex_name,applicant_ethnicity_name)%>%
-summarize(income=mean(applicant_income_000s),lien_status=Mode(lien_status))
+customerSegments<-ny_hmApproval %>%
+group_by(applicant_sex_name,applicant_ethnicity_name,lien_status,preapproval,loan_purpose,purchaser_type)%>%
+summarize(AppliantIncome=mean(applicant_income_000s),LoanAmount=mean(loan_amount_000s))
 customerSegments
+
 ```
 
