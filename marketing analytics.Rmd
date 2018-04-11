@@ -13,7 +13,7 @@ library(readr)
 library(dplyr)
 library(ggplot2)
 library(pastecs)
-ny_hmda <- read_csv("~/Desktop/2018 spring/market analytics/ny_hmda_2015.csv")
+ny_hmda <- read_csv("~/R/BUS256/Data/ny_hmda_2015.csv")
 ```
 ## Data problem and managerial objectives
 
@@ -545,4 +545,8 @@ HighApproval
 
 
 ```
-11.We create segments based on demographic characteristics like sex and ethnicity. Therefore we create seven segments totally. We use the best model mentioned above to predict the mean approval rating. We set a threshold and select the segments whose mean approval rating is above 0.5.There are four group left and they are male and Not Hispanic or Latino, male and Not applicable, female and Not Hispanic or Latino, Not applicable and not applicable. These groups have high approval ratings. There are several applications of the predicting ratings. For banks, they should target these four groups because these customers are more likely to get loans. For financial intermediaries that help customers to acquire loans, they should also target these four groups and therefore they d
+
+We create segments based on demographic characteristics like sex and ethnicity. Therefore we create seven segments totally. We use the best model mentioned above to predict the mean approval rating. 
+
+##12.Recommendation
+We set a threshold and select the segments whose mean approval rating is above 0.5.There are four groups left and they are male and Not Hispanic or Latino, male and Not applicable, female and Not Hispanic or Latino, Not applicable (ethnicity) and not applicable (ethnicity). These groups have high approval ratings which means people in these groups are highly likely to get loan approvals. There are several applications of this prediction. For financial institutions, they should target promoting mortgage service among these four groups because these customers are more likely to get loans. Financial institutions could spend more resource like personnel on these groups rather than on other segments and therefore maximize utilization of resource. For the public, they can predict the probability of getting loans approved, which could help them decide whether to apply for mortgages.
