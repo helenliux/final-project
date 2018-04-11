@@ -206,7 +206,7 @@ There are 78 variables and 439654 observations in this dataset, however, a lot o
 
 Since there are 439654 observations in total, we think variables with more than half of observations missing are less informative, such as applicant_race_2, applicant_race_3, applicant_race_4, applicant_race_5,co_applicant_race_2，co_applicant_race_3，co_applicant_race_4, co_applicant_race_5, edit_status, rate_spread and denial reason. Imputation of these variable would cause bias due to a significant number of missing data, thus we could directly delete those variables.
 
-For those variables with less than half of observations missing, we took several steps to deal with them.  At first, we test whether the missing is random or not.To be specific,for each variable, we created a corresponding dummy variable called IsMissingX to indicate whether the value is missing or not. X is the name of each variable. If the value is missing, then we assign 1 to the dummy variable, or we fill in with 0. Because action_taken and IsMissingX are both category variables, then we use Chi-square test to check their relationship to see whether a value being missing is independent of the destribution of loan action. It turns out that we reject null hypothesis for each chi-square test, meaning values are not missing at random for each variable. Therefore, we cannot delete the variables with missing data. 
+For those variables with less than half of observations missing, we took several steps to deal with them.  At first, we test whether the missing is random or not.To be specific,for each variable, we created a corresponding dummy variable called IsMissingX to indicate whether the value is missing or not. X is the name of each variable. If the value is missing, then we assign 1 to the dummy variable, otherwise we fill it with 0. Because action_taken and IsMissingX are both category variables, then we use Chi-square test to check their relationship to see whether a value being missing is independent of the destribution of loan action. It turns out that we reject null hypothesis for each chi-square test, meaning values are not missing at random for each variable. Therefore, we cannot delete the variables with missing data. 
 
 For applicant_income_000s, census_tract_number, county_code, hud_median_family_income, number_of_1_to_4_family_units, number_of_owner_occupied_units, minority_population, population, tract_to_msamd_income, we replace the "NA" with the mode value of the variable, which could represent general distribution of the variables. The reason why we did not fill in the missing value with mean is that the exsistence of outlier would make mean less representitive. 
 
@@ -444,7 +444,7 @@ Loan_Approval is defined as a dummy variable. At first,  we selected obervations
 
 Then we assign "Loan_Approval=1" when "loan is originated" or "application is approved but not accepted" and assign "Loan_Approval= 0" when "application is denied”.
 
-The new dataframe we created has 67 variables and 176132 observations.
+The new dataframe we created has 67 variables and 321931 observations.
 
 ##7. T-test
 we use Independent-Samples (or Unpaired Samples) t-test to compare the mean loan amounts between loans that were and were not approved.
@@ -473,7 +473,7 @@ The Loan_Approval only has value 0 or 1, so the mean of Loan_Approval can repres
 loan_approval_model1<-lm(Loan_Approval~loan_amount_000s+hud_median_family_income+factor(applicant_sex)+factor(applicant_race_1), data=ny_hmApproval, x= TRUE)
 summary(loan_approval_model1)
 ```
-"Loan_Approval"" is a dependent variabl. It is a dummy variable and shows whether the application is approved or not. In our model, we used LPM model and treat "Loan_Approval" as the probability of a loan being approved. "loan_amount_000s", "hud_median_family_income","applicant_sex", "applicant_race_1" are included in the model as independent variables. 
+"Loan_Approval"" is a dependent variable. It is a dummy variable and shows whether the application is approved or not. In our model, we used LPM model and treat "Loan_Approval" as the probability of a loan being approved. "loan_amount_000s", "hud_median_family_income","applicant_sex", "applicant_race_1" are included in the model as independent variables. 
 
 According to the regression result, loan_amount and race are statistically significant under 5% significant level.1The coefficient of loan amount or hud_median_family_income represent the incresing possibility of getting approved if loan amount or hud_median_family_income increases one unit. The base of group in the model is white male, therefore all coefficients of dummy variables represent the difference of the possibility of approval from the base group.
 Noticeably, the R-squared is only 0.0109, showing that our model can not explain the data variation very well. Therefore, the next step is to control omitted variables to make a better model.  
@@ -522,7 +522,7 @@ Then we created 8 vectors to automatically generate 64 different models. These v
 
 
 ##10. Customer segmentation
-In our model, there are significant customer segments based on demographics and non-demographics. One of customer segments is based on applicant ethnicity. On average, the probability for ethnicity group 2 (not hispanic or latino) of getting loan approved is 0.2 less than ethnicity group 4 (not applicable), if all else situations are the same. Another customer segment is based on applicant gender. The probability for female  of getting loan approved is 0.0037 less than male, if all else situations are the same. Purchaser type is also a customer sgement and different purchaser types has different impacts on the approval of loans. We could also notice the segments in loan purpose, lien_status and preapproval. For all applicants, if the income increases 1000 dollars, the probability of getting approved incrases 0.01%.
+In our model, there are significant customer segments based on demographics and non-demographics. The base group for our selected model is under following conditions: preapproval is requested, loan was secured by first lien, loan was for home purchase, loan was not originated or sold in calendar year covered by register, applicant is male and hispanic or latino. We found there are significant segments in preapproval, lien status, loan purpose, purchaser type, applicant sex and applicant ethnicity, as their p-value are less than 0.05. For all applicants, if the income increases 1000 dollars, the probability of getting approved incrases 0.01%.
 
 ##11. Predicting Mean Approval Rating
 ```{r}
