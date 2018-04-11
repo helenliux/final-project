@@ -377,7 +377,7 @@ mutate(PercentageActionTaken = TotalActionTaken /sum(TotalActionTaken)*100)
 ny_hmdaRace_status
                                                 
 ```
-```{r fig1, fig.height=5,fig.width=6, fig.align="center"}
+```{r fig1, fig.height=5,fig.width=15, fig.align="center"}
 ggplot(ny_hmdaRace_status, aes(x = action_taken_name,y = PercentageActionTaken),stat="count")+ geom_bar(stat='identity',colour="red")+labs( title = ' race destribution by loan actions')+facet_wrap(~ applicant_race_name_1 , scales ="free_y")+theme(axis.text.x = element_text(angle = 30, hjust =1))+geom_text(data=ny_hmdaRace_status,aes(label=paste0(round(PercentageActionTaken,1),"%"),y=PercentageActionTaken+3), size=2)+geom_point(aes(shape = action_taken_name), alpha = 0) + 
   scale_shape_manual(name = "action_taken", values = x.labels) + 
   guides(shape = guide_legend(override.aes = list(size = 3, alpha = 1))) + 
@@ -399,7 +399,7 @@ mutate(PercentageActionTaken = TotalActionTaken /sum(TotalActionTaken)*100)
 ny_hmda_purpose
 
 ```
-```{r fig2, fig.height=5,fig.width=6, fig.align="center"}
+```{r fig2, fig.height=5,fig.width=10, fig.align="center"}
 ggplot(ny_hmda_purpose,aes( x = action_taken_name,y = PercentageActionTaken),stat="count") +
 geom_bar(stat='identity',colour="red") +
 labs( title = 'Loans Purpose Types Distribution with Action Types') +
@@ -473,14 +473,14 @@ The Loan_Approval only has value 0 or 1, so the mean of Loan_Approval can repres
 loan_approval_model1<-lm(Loan_Approval~loan_amount_000s+hud_median_family_income+factor(applicant_sex)+factor(applicant_race_1), data=ny_hmApproval, x= TRUE)
 summary(loan_approval_model1)
 ```
-"Loan_Approval"" is a dependent variabl. It is a dummy variable and shows whether the application is approved or not. "loan_amount_000s", in our model, we used LPM model and treat "Loan_Approval" as the probability of a loan being approved. hud_median_family_income","applicant_sex", "applicant_race_1", "IsMissingSex","IsMissingRace" are included in the model as dependent variables. 
+"Loan_Approval"" is a dependent variabl. It is a dummy variable and shows whether the application is approved or not. In our model, we used LPM model and treat "Loan_Approval" as the probability of a loan being approved. "loan_amount_000s", "hud_median_family_income","applicant_sex", "applicant_race_1" are included in the model as independent variables. 
 
-According to the regression result, loan_amount, sex and race are statistically significant under 5% significant level. However, hud_median_family_income is not statisticallt significant. The coefficient of loan amount represents the incresing possibility of getting approved if loan amount increases one unit. The base of group in the model is white male, therefore all coefficients of dummy variables represent the difference of the possibility of approval from the base group.
-Noticeably, the R-squared is only 0.0198, showing that our model can not explain the data variation very well. Therefore, the next step is to control omitted variables to make a better model.  
+According to the regression result, loan_amount and race are statistically significant under 5% significant level.1The coefficient of loan amount or hud_median_family_income represent the incresing possibility of getting approved if loan amount or hud_median_family_income increases one unit. The base of group in the model is white male, therefore all coefficients of dummy variables represent the difference of the possibility of approval from the base group.
+Noticeably, the R-squared is only 0.0109, showing that our model can not explain the data variation very well. Therefore, the next step is to control omitted variables to make a better model.  
 
 ##9. Best Model
 ```{r}
-#Setting training set and testing set
+#create 50 models
 library("dplyr")
 RegressionVec1 = c('+loan_amount_000s')
 RegressionVec2 = c('','+factor(preapproval)')
@@ -510,31 +510,29 @@ for (i in 1:64) {
 format(digits = 4)
   
 }
-
-mselist
 min(mselist) 
+mselist
+mselist[[64]]
+summary(modellist2[[64]])
+selectedmodel<-modellist2[[64]]
 
 ```
-Compared to previous model, the R-square of this model is higher. 0.31 R-square means that 31% data variation can be represented by the model. All variables are statistically significant under this model except for factor(applicant_sex)4,factor(applicant_race_1)3,factor(applicant_race_1)4  and factor(lien_status)3. 
+Then we created 8 vectors to automatically generate 64 different models. These vectors contains following variables: loan_amount_000s, preapproval,lien_status, loan_purpose, purchaser_type, applicant_income_000s , applicant_sex, applicant_ethnicity. We created 64 models from these variables. We include these variables in our model based on plots and our first model above. Thus we created 64 models with ny_hmApproval and store the models as modellist1. Then we seperated our original dataset into training set and validation set, and used the same formularset to generate models within the training set. We utilized training data to generate models and made predictions for validation set. We firstly generated 64 models with training data and store it as modellist2. Then we made predictions based on models in modellist2 and calculated out of sample MSE of these models. We found the 64th model in the modellist2 has the least MSE, 0.1325.
 
 
 ##10. Customer segmentation
-In our model, there are significant customer segments based on demographics. The first segment is based on gender. On average, the probability for female of getting loan approved is 0.3% less than male, if all else situations are the same. The number is so small that we can makde a conclution that the gender bias is not available. The second segment is based on race. The base is American Indian or Alaska Native. Noticeably, the probability for white people of getting approval is 14.8% higher than the American Indian or Alaska Native and the probability for Asian is 9% higher than them. Therefore, there is racial discrimination for loan application. For all applicants, if the income increases 1000 dollars, the probability of getting approved incrases 0.01%.
+In our model, there are significant customer segments based on demographics and non-demographics. One of customer segments is based on applicant ethnicity. On average, the probability for ethnicity group 2 (not hispanic or latino) of getting loan approved is 0.2 less than ethnicity group 4 (not applicable), if all else situations are the same. Another customer segment is based on applicant gender. The probability for female  of getting loan approved is 0.0037 less than male, if all else situations are the same.
 
-##11. Model interpretation
-We identified a bunch of influencial factors on the approval of loan including loan amount, applicant income, applicant race, applicant sex, loan preapproval status, loan lien status, loan type and purchaser type, though there are several specific dummy variables that are not significant.
 
-The intercept is the probability of loan approval under following conditions: the applicant's sex is male, race is American Indian or Alaska Native, the loan does not require preapproval, the loan is secured by first lien, the loan purpose if for home purchase, the loan type is conventional, the loan was not originated or was not sold in calendar year covered by register. An additional unit in applicant_income_000s would lead the probability of loan approval increase by 0.00011 and an additional an additional unit in loan_amout_000s would lead this probability to increase by 0.00002. Every coefficient of dummy variableS stands for the change of the probability of getting a loan approved when the dummy condition is met. For example, when applicant sex is female, then the probability of getting approval would decrease by 0.0035. 
+Purchaser type is also a customer sgement and different purchaser types has different impacts on the approval of loans. We could also notice the segments in loan purpose, lien_status and preapproval. For all applicants, if the income increases 1000 dollars, the probability of getting approved incrases 0.01%.
 
-We could use this regression result to predict the probability of a loan getting approved given all the information of above variables. 
-
+##11. Predicting Mean Approval Rating
 ```{r}
 library(dplyr)
-customerSegments<-ny_hmApproval %>%
+customerSegments<-ny_hmda %>%
 group_by(applicant_sex, applicant_ethnicity) %>%
-  
-summarize(applicant_income_000s=mean(applicant_income_000s),loan_amount_000s=mean(loan_amount_000s),
-lien_status=Mode(lien_status),preapproval=Mode(preapproval),purchaser_type=Mode(purchaser_type), loan_purpose=Mode(loan_purpose))
+
+summarise(applicant_income_000s=mean(applicant_income_000s),loan_amount_000s=mean(loan_amount_000s),lien_status=Mode(lien_status),purchaser_type=Mode(purchaser_type),preapproval=Mode(preapproval),loan_purpose=Mode(loan_purpose))
 customerSegments
 
 Output<-predict(modellist2[[64]],newdata = customerSegments)
@@ -543,7 +541,8 @@ SegOutput
 HighApproval<-SegOutput %>%
 filter(Output>0.5)
 HighApproval
-11
+
+
 
 ```
-
+We create segments based on demographic characteristics like sex and ethnicity. Therefore we create seven segments totally. We use the best model mentioned above to predict the mean approval rating. We set a threshold and select the segments whose mean approval rating is above 0.5.There are four group left and they are male and Not Hispanic or Latino, male and Not applicable, female and Not Hispanic or Latino, Not applicable and not applicable. These groups have high approval ratings. There are several applications of the predicting ratings. For banks, they should target these four groups because these customers are more likely to get loans. For financial intermediaries that help customers to acquire loans, they should also target these four groups and therefore they d
